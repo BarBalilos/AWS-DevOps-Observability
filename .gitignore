@@ -1,0 +1,5 @@
+# Real Alertmanager receiver config (webhook URLs, tokens) — never committed
+alertmanager/alertmanager-config.yaml
+alertmanager/*.secret.yaml
+*.env
+.DS_Store
