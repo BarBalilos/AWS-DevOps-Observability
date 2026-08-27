@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    name: observability
+    # Used by our NetworkPolicies (here and in AWS-DevOps-Kubernetes) to identify
+    # traffic that's allowed to originate from the monitoring stack.
+    purpose: monitoring

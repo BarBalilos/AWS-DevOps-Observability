@@ -1,0 +1,75 @@
+# helm/kube-prometheus-stack/values.yaml
+#
+# Overrides for prometheus-community/kube-prometheus-stack, pinned to chart
+# version 88.5.4 (app version v0.93.1 / Prometheus Operator).
+#
+# Install with:
+#   helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+#     --version 88.5.4 \
+#     --namespace observability \
+#     -f helm/kube-prometheus-stack/values.yaml
+#
+# SELECTOR STRATEGY (documented per assignment brief requirement):
+# We deliberately do NOT set serviceMonitorSelector/podMonitorSelector/ruleSelector
+# to {} directly (which would mean "match everything, cluster-wide, unlabeled").
+# Instead we keep the chart's *SelectorNilUsesHelmValues flags at their default
+# `true`, which makes Prometheus Operator render a selector requiring the label
+#     release: kube-prometheus-stack
+# on every ServiceMonitor / PodMonitor / PrometheusRule it will pick up — that
+# label value comes from the Helm release name used in the install command above
+# ("kube-prometheus-stack"). Every monitor/rule file we add later (backend, worker,
+# frontend, jenkins) MUST carry this exact label, or Prometheus silently ignores it
+# — no error, it just never shows up as a target. This is our "clear selector
+# strategy": explicit opt-in by label, not implicit cluster-wide discovery.
+#
+# NAMESPACE SCOPE: serviceMonitorNamespaceSelector / podMonitorNamespaceSelector
+# are left at their default {} (empty selector = match ALL namespaces), which is
+# what we need — our app's monitors will live in devops-app and Jenkins's will
+# live in jenkins, neither is inside the observability namespace itself.
+
+prometheus:
+  prometheusSpec:
+    replicas: 1
+
+    # --- retention: documented per brief requirement ---
+    # Time-based retention (primary) plus a size-based safety cap so Prometheus
+    # never fills the PVC even if scrape volume grows faster than expected.
+    retention: "10d"
+    retentionSize: "8GB"
+
+    # --- resources: sized against actually-measured headroom ---
+    # Cluster has ~16 vCPU / ~15GB shared across both k3d nodes; current combined
+    # usage (Jenkins + app + k3s system pods) is ~155m CPU / ~1.1GB memory. These
+    # requests/limits give Prometheus real room without starving anything else.
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+    # --- storage: PVC on k3d's local-path StorageClass ---
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+    # --- selector strategy (see header comment above) ---
+    serviceMonitorSelectorNilUsesHelmValues: true
+    podMonitorSelectorNilUsesHelmValues: true
+    ruleSelectorNilUsesHelmValues: true
+    probeSelectorNilUsesHelmValues: true
+    scrapeConfigSelectorNilUsesHelmValues: true
+
+    # Explicitly documented as {} (= all namespaces) — see header comment.
+    serviceMonitorNamespaceSelector: {}
+    podMonitorNamespaceSelector: {}
+    ruleNamespaceSelector: {}
+
+# grafana: section — written next, once we've checked its defaults the same way.
+# alertmanager: section — written next, once we've checked its defaults the same way.
