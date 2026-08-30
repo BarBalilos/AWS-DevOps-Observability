@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: monitoring-alerts
+  namespace: observability
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: monitoring-alerts
+      rules:
+        - alert: PrometheusTargetDown
+          expr: |
+            up == 0
+          for: 5m
+          labels:
+            severity: critical
+            category: monitoring-system
+          annotations:
+            summary: "Prometheus target {{ $labels.job }} on {{ $labels.instance }} is down"
+            description: >-
+              Prometheus has been unable to scrape target {{ $labels.instance }}
+              (job {{ $labels.job }}) for more than 5 minutes. Metrics and
+              alerting coverage for this target is blind until it recovers.
+            runbook_url: "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/PrometheusTargetDown.md"

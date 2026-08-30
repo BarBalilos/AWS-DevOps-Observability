@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: worker
+  namespace: devops-app
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: worker
+  podMetricsEndpoints:
+    - port: metrics       # matches `name: metrics` on containerPort 9001 in
+                           # k8s/07-worker-deployment.yaml (AWS-DevOps-Kubernetes)
+      path: /metrics
+      interval: 30s

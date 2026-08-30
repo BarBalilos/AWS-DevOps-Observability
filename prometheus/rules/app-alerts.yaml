@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: app-alerts
+  namespace: observability
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: app-alerts
+      rules:
+        - alert: HighErrorRate
+          expr: slo:http_availability_ratio:rate5m < 0.99
+          for: 5m
+          labels:
+            severity: critical
+            category: app
+          annotations:
+            summary: "{{ $labels.job }} availability SLO breach"
+            description: >-
+              {{ $labels.job }} has served less than 99% successful (non-5xx)
+              responses over the last 5 minutes (current value: {{ $value | humanizePercentage }}).
+            runbook_url: "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/HighErrorRate.md"
+        - alert: HighLatencyP95
+          expr: slo:http_latency_500ms_ratio:rate5m < 0.95
+          for: 5m
+          labels:
+            severity: warning
+            category: app
+          annotations:
+            summary: "{{ $labels.job }} latency SLO breach"
+            description: >-
+              {{ $labels.job }} has served less than 95% of requests within
+              500ms over the last 5 minutes (current value: {{ $value | humanizePercentage }}).
+            runbook_url: "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/HighLatencyP95.md"

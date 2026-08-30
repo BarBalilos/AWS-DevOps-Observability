@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: jenkins-alerts
+  namespace: observability
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: jenkins-alerts
+      rules:
+        - alert: JenkinsQueueStuck
+          expr: |
+            default_jenkins_queue_size_value > 3
+          for: 10m
+          labels:
+            severity: warning
+            category: jenkins
+          annotations:
+            summary: "Jenkins build queue is backed up"
+            description: >-
+              Jenkins has had more than 3 queued builds for over 10 minutes,
+              indicating insufficient agent capacity or a stuck/slow build
+              blocking the queue.
+            runbook_url: "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/JenkinsQueueStuck.md"

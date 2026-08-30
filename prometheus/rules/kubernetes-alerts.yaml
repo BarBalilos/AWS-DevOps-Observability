@@ -1,0 +1,42 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kubernetes-alerts
+  namespace: observability
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: kubernetes-alerts
+      rules:
+        - alert: ReplicasMismatch
+          expr: |
+            kube_deployment_status_replicas_available{namespace="devops-app"}
+            != kube_deployment_spec_replicas{namespace="devops-app"}
+          for: 10m
+          labels:
+            severity: critical
+            category: k8s
+          annotations:
+            summary: "Deployment {{ $labels.deployment }} has fewer replicas available than desired"
+            description: >-
+              Deployment {{ $labels.deployment }} in {{ $labels.namespace }}
+              has had a mismatch between desired and available replicas for
+              over 10 minutes (not just a normal rollout blip).
+            runbook_url: "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/ReplicasMismatch.md"
+        - alert: NodeNotReadyOrPressure
+          expr: |
+            (kube_node_status_condition{condition="Ready", status="true"} == 0)
+            or
+            (kube_node_status_condition{condition=~"MemoryPressure|DiskPressure|PIDPressure", status="true"} == 1)
+          for: 5m
+          labels:
+            severity: critical
+            category: k8s
+          annotations:
+            summary: "Node {{ $labels.node }} is NotReady or under resource pressure"
+            description: >-
+              Node {{ $labels.node }} has reported condition {{ $labels.condition }}
+              as not-Ready or under resource pressure for more than 5 minutes.
+              This can cause pod evictions and scheduling failures.
+            runbook_url: "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/NodeNotReadyOrPressure.md"

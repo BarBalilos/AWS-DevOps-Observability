@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager-demo-receiver
+  namespace: observability
+  labels:
+    app: alertmanager-demo-receiver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager-demo-receiver
+  template:
+    metadata:
+      labels:
+        app: alertmanager-demo-receiver
+    spec:
+      containers:
+        - name: echo
+          image: mendhak/http-https-echo:31
+          ports:
+            - containerPort: 8080
+          env:
+            - name: HTTP_PORT
+              value: "8080"
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-demo-receiver
+  namespace: observability
+spec:
+  selector:
+    app: alertmanager-demo-receiver
+  ports:
+    - port: 8080
+      targetPort: 8080

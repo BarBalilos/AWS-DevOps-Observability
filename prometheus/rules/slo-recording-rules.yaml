@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: slo-recording-rules
+  namespace: observability
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: slo-recording-rules
+      interval: 30s
+      rules:
+        - record: slo:http_availability_ratio:rate5m
+          expr: |
+            sum(rate(http_requests_total{status!~"5.."}[5m])) by (job)
+            /
+            sum(rate(http_requests_total[5m])) by (job)
+        - record: slo:http_latency_500ms_ratio:rate5m
+          expr: |
+            sum(rate(http_request_duration_seconds_bucket{le="0.5"}[5m])) by (job)
+            /
+            sum(rate(http_request_duration_seconds_count[5m])) by (job)

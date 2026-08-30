@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: backend
+  namespace: devops-app
+  labels:
+    release: kube-prometheus-stack   # REQUIRED — see selector strategy note in
+                                      # helm/kube-prometheus-stack/values.yaml.
+                                      # Without this exact label, Prometheus
+                                      # silently ignores this PodMonitor.
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  podMetricsEndpoints:
+    - port: metrics       # matches `name: metrics` on containerPort 9000 in
+                           # k8s/05-backend-deployment.yaml (AWS-DevOps-Kubernetes)
+      path: /metrics
+      interval: 30s

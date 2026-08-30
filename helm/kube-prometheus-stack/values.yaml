@@ -71,5 +71,129 @@ prometheus:
     podMonitorNamespaceSelector: {}
     ruleNamespaceSelector: {}
 
-# grafana: section — written next, once we've checked its defaults the same way.
-# alertmanager: section — written next, once we've checked its defaults the same way.
+grafana:
+  # --- admin credentials: intentionally left at chart defaults ---
+  # We do NOT set adminPassword or admin.existingSecret here. Left unset, Grafana's
+  # chart auto-generates a random admin password and stores it in a Kubernetes
+  # Secret named "kube-prometheus-stack-grafana" — it never appears in any file we
+  # commit. Retrieve it locally (never paste the output into chat or into a
+  # committed file) with:
+  #   kubectl get secret -n observability kube-prometheus-stack-grafana \
+  #     -o jsonpath="{.data.admin-password}" | base64 -d
+
+  # --- persistence: intentionally left DISABLED (chart default) ---
+  # Grafana's own database (anything saved by clicking in the UI: ad-hoc panels,
+  # manual datasource edits, org settings) is ephemeral — it resets on every pod
+  # restart. This is deliberate, not an oversight: it structurally enforces
+  # "Observability as Code" from the brief. Anything configured only by clicking in
+  # the Grafana UI cannot survive a restart, so if a dashboard or datasource still
+  # works after `kubectl rollout restart`, that's proof it came from Git (via the
+  # sidecar-loaded ConfigMaps below), not from a manual click that would otherwise
+  # not count as a deliverable.
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+  # --- exposure: no Ingress, port-forward only (per project decision) ---
+  ingress:
+    enabled: false
+
+  sidecar:
+    # --- automatic dashboard provisioning from files in Git ---
+    # These are chart DEFAULTS, made explicit here for documentation (Observability
+    # as Code requirement). The sidecar watches for ConfigMaps labeled
+    #   grafana_dashboard: "1"
+    # in ANY namespace and auto-loads their JSON as a dashboard — no manual import.
+    # scripts/install.sh turns each file in grafana/dashboards/*.json into exactly
+    # such a labeled ConfigMap.
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+      provider:
+        allowUiUpdates: false   # UI edits to a provisioned dashboard don't silently
+                                # diverge from its Git source — reinforces as-code.
+
+    # --- automatic datasource provisioning ---
+    # Also a chart default, documented explicitly. Auto-creates a "Prometheus"
+    # datasource pointed at this release's own Prometheus, AND an "Alertmanager"
+    # datasource — zero manual "Add data source" clicks required.
+    datasources:
+      enabled: true
+      defaultDatasourceEnabled: true
+      alertmanager:
+        enabled: true
+
+alertmanager:
+  # --- exposure: no Ingress, port-forward only (per project decision) ---
+  ingress:
+    enabled: false
+
+  alertmanagerSpec:
+    replicas: 1
+
+    # Default retention (5 days) is fine — this only governs how long Alertmanager
+    # keeps its own notification/silence history, not metrics.
+    retention: 120h
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+    # Unlike Grafana, Alertmanager's state (active silences, notification log) is
+    # kept persistent on purpose — that's real operational history, not something
+    # we want reset on every pod restart.
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+
+  # --- safe demo receiver ---
+  # Routes every alert to a tiny in-cluster HTTP echo service (see
+  # alertmanager/demo-receiver.yaml) instead of any real external target. This is
+  # deliberate: it's a genuinely working, delivered notification (not a silent
+  # `null` receiver) that proves the whole alerting path end-to-end, with zero
+  # external dependency, zero cost, and zero risk of paging a real person. Its
+  # target is an in-cluster Service DNS name — not sensitive, so no secret is
+  # needed for this receiver specifically.
+  #
+  # To point this at a REAL channel later (e.g. Slack) without breaking the
+  # "secrets stay out of Git" rule: create a Kubernetes Secret holding the webhook
+  # URL/token (kubectl create secret ..., never committed) and reference it via
+  # alertmanager.alertmanagerSpec.alertmanagerConfigSelector + an AlertmanagerConfig
+  # CRD, rather than inlining the URL below.
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['namespace', 'alertname']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'demo-webhook'
+      routes:
+      - receiver: 'null'
+        matchers:
+          - alertname = "Watchdog"
+    receivers:
+    - name: 'null'
+    - name: 'demo-webhook'
+      webhook_configs:
+      - url: 'http://alertmanager-demo-receiver.observability.svc.cluster.local:8080/alerts'
+        send_resolved: true
+    templates:
+    - '/etc/alertmanager/config/*.tmpl'
