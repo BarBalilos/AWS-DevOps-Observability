@@ -1,0 +1,264 @@
+{
+  "id": null,
+  "uid": "app-overview",
+  "title": "Application Overview",
+  "tags": ["application", "slo"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "table",
+      "title": "Service Info (app_info)",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "app_info",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true }
+    },
+    {
+      "id": 2,
+      "type": "gauge",
+      "title": "Availability SLO (target 99%)",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(slo:http_availability_ratio:rate5m)",
+          "instant": true,
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 0.99 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "showThresholdLabels": false, "showThresholdMarkers": true }
+    },
+    {
+      "id": 3,
+      "type": "gauge",
+      "title": "Latency SLO (target 95% < 500ms)",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(slo:http_latency_500ms_ratio:rate5m)",
+          "instant": true,
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 0.95 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "showThresholdLabels": false, "showThresholdMarkers": true }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Request Rate by Service",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_requests_total[5m])) by (job)",
+          "legendFormat": "{{job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Error Rate (5xx) by Service",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (job)",
+          "legendFormat": "{{job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "P95 Latency by Service",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job))",
+          "legendFormat": "{{job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Dependency Errors by Service",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(dependency_errors_total[5m])) by (job)",
+          "legendFormat": "{{job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Business Metrics: Records Created / Files Uploaded",
+      "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(records_created_total[5m]))",
+          "legendFormat": "records_created/s (backend)",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(files_uploaded_total[5m]))",
+          "legendFormat": "files_uploaded/s (worker)",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Active App Alerts",
+      "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ALERTS{category=\"app\"}",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true }
+    }
+  ]
+}

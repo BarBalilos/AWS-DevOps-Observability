@@ -26,17 +26,14 @@
 # are left at their default {} (empty selector = match ALL namespaces), which is
 # what we need — our app's monitors will live in devops-app and Jenkins's will
 # live in jenkins, neither is inside the observability namespace itself.
-
 prometheus:
   prometheusSpec:
     replicas: 1
-
     # --- retention: documented per brief requirement ---
     # Time-based retention (primary) plus a size-based safety cap so Prometheus
     # never fills the PVC even if scrape volume grows faster than expected.
     retention: "10d"
     retentionSize: "8GB"
-
     # --- resources: sized against actually-measured headroom ---
     # Cluster has ~16 vCPU / ~15GB shared across both k3d nodes; current combined
     # usage (Jenkins + app + k3s system pods) is ~155m CPU / ~1.1GB memory. These
@@ -48,7 +45,6 @@ prometheus:
       limits:
         cpu: 500m
         memory: 1Gi
-
     # --- storage: PVC on k3d's local-path StorageClass ---
     storageSpec:
       volumeClaimTemplate:
@@ -58,19 +54,16 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
-
     # --- selector strategy (see header comment above) ---
     serviceMonitorSelectorNilUsesHelmValues: true
     podMonitorSelectorNilUsesHelmValues: true
     ruleSelectorNilUsesHelmValues: true
     probeSelectorNilUsesHelmValues: true
     scrapeConfigSelectorNilUsesHelmValues: true
-
     # Explicitly documented as {} (= all namespaces) — see header comment.
     serviceMonitorNamespaceSelector: {}
     podMonitorNamespaceSelector: {}
     ruleNamespaceSelector: {}
-
 grafana:
   # --- admin credentials: intentionally left at chart defaults ---
   # We do NOT set adminPassword or admin.existingSecret here. Left unset, Grafana's
@@ -80,7 +73,6 @@ grafana:
   # committed file) with:
   #   kubectl get secret -n observability kube-prometheus-stack-grafana \
   #     -o jsonpath="{.data.admin-password}" | base64 -d
-
   # --- persistence: intentionally left DISABLED (chart default) ---
   # Grafana's own database (anything saved by clicking in the UI: ad-hoc panels,
   # manual datasource edits, org settings) is ephemeral — it resets on every pod
@@ -90,19 +82,23 @@ grafana:
   # works after `kubectl rollout restart`, that's proof it came from Git (via the
   # sidecar-loaded ConfigMaps below), not from a manual click that would otherwise
   # not count as a deliverable.
-
+  # --- resources: bumped from chart-default sizing ---
+  # Original sizing (100m/128Mi requests, 250m/256Mi limits) was too tight once
+  # dashboards + both k8s-sidecar containers + Grafana's unified-storage (bleve)
+  # indexing are all running in the same pod: observed CPU pegged at its 250m
+  # limit and memory over the 256Mi limit, causing the liveness probe to time out
+  # (context deadline exceeded) and the grafana container to be SIGKILLed (exit
+  # 137) in a restart loop. Raised to give real headroom.
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 250m
+      cpu: 150m
       memory: 256Mi
-
+    limits:
+      cpu: 500m
+      memory: 512Mi
   # --- exposure: no Ingress, port-forward only (per project decision) ---
   ingress:
     enabled: false
-
   sidecar:
     # --- automatic dashboard provisioning from files in Git ---
     # These are chart DEFAULTS, made explicit here for documentation (Observability
@@ -119,7 +115,6 @@ grafana:
       provider:
         allowUiUpdates: false   # UI edits to a provisioned dashboard don't silently
                                 # diverge from its Git source — reinforces as-code.
-
     # --- automatic datasource provisioning ---
     # Also a chart default, documented explicitly. Auto-creates a "Prometheus"
     # datasource pointed at this release's own Prometheus, AND an "Alertmanager"
@@ -129,19 +124,15 @@ grafana:
       defaultDatasourceEnabled: true
       alertmanager:
         enabled: true
-
 alertmanager:
   # --- exposure: no Ingress, port-forward only (per project decision) ---
   ingress:
     enabled: false
-
   alertmanagerSpec:
     replicas: 1
-
     # Default retention (5 days) is fine — this only governs how long Alertmanager
     # keeps its own notification/silence history, not metrics.
     retention: 120h
-
     resources:
       requests:
         cpu: 50m
@@ -149,7 +140,6 @@ alertmanager:
       limits:
         cpu: 100m
         memory: 128Mi
-
     # Unlike Grafana, Alertmanager's state (active silences, notification log) is
     # kept persistent on purpose — that's real operational history, not something
     # we want reset on every pod restart.
@@ -161,7 +151,6 @@ alertmanager:
           resources:
             requests:
               storage: 1Gi
-
   # --- safe demo receiver ---
   # Routes every alert to a tiny in-cluster HTTP echo service (see
   # alertmanager/demo-receiver.yaml) instead of any real external target. This is

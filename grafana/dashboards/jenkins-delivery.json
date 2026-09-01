@@ -1,0 +1,341 @@
+{
+  "id": null,
+  "uid": "jenkins-delivery",
+  "title": "Jenkins & Delivery",
+  "tags": ["jenkins", "delivery", "cicd"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "bargauge",
+      "title": "Build Health Score",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_builds_health_score",
+          "instant": true,
+          "legendFormat": "{{jenkins_job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "green", "value": 80 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "showUnfilled": true }
+    },
+    {
+      "id": 2,
+      "type": "bargauge",
+      "title": "Build Success Rate",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_builds_success_build_count_total / default_jenkins_builds_total_build_count_total * 100",
+          "instant": true,
+          "legendFormat": "{{jenkins_job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 80 },
+              { "color": "green", "value": 95 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "showUnfilled": true }
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "Last Build Result",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_builds_last_build_result_ordinal",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": { "text": "SUCCESS", "color": "green" },
+                "1": { "text": "UNSTABLE", "color": "yellow" },
+                "2": { "text": "FAILURE", "color": "red" },
+                "3": { "text": "NOT_BUILT", "color": "gray" },
+                "4": { "text": "ABORTED", "color": "gray" }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": { "showHeader": true },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "__name__": true, "repo": true, "buildable": true },
+            "indexByName": {},
+            "renameByName": { "jenkins_job": "Job", "Value": "Result" }
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Last Build Duration",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_builds_last_build_duration_milliseconds",
+          "legendFormat": "{{jenkins_job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Average Build Duration",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_builds_duration_milliseconds_summary_sum / default_jenkins_builds_duration_milliseconds_summary_count",
+          "legendFormat": "{{jenkins_job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Build Queue Length (alert threshold: 3)",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_queue_size_value",
+          "legendFormat": "queue size",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "thresholdsStyle": { "mode": "line" }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 3 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Executors: Busy vs Available by Label",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_executors_busy{label=~\"built-in|cd-agent|ci-agent\"}",
+          "legendFormat": "{{label}} busy",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        },
+        {
+          "refId": "B",
+          "expr": "default_jenkins_executors_available{label=~\"built-in|cd-agent|ci-agent\"}",
+          "legendFormat": "{{label}} available",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Pipeline Stage Duration Breakdown",
+      "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_builds_last_stage_duration_milliseconds_summary_sum",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "options": { "showHeader": true },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "__name__": true, "repo": true, "buildable": true },
+            "indexByName": {},
+            "renameByName": { "jenkins_job": "Job", "stage": "Stage", "Value": "Duration (ms)" }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [{ "field": "Duration (ms)", "desc": true }]
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Last Build Waiting Time (queue delay)",
+      "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "default_jenkins_builds_last_build_waiting_milliseconds",
+          "legendFormat": "{{jenkins_job}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Active Jenkins Alerts",
+      "gridPos": { "x": 0, "y": 32, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ALERTS{category=\"jenkins\"}",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true }
+    }
+  ]
+}

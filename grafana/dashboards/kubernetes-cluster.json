@@ -1,0 +1,296 @@
+{
+  "id": null,
+  "uid": "k8s-cluster",
+  "title": "Kubernetes / Cluster",
+  "tags": ["kubernetes", "cluster"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "table",
+      "title": "Node Ready Status",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "kube_node_status_condition{condition=\"Ready\", status=\"true\"}",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Node CPU Usage %",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "{{instance}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Node Memory Usage %",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+          "legendFormat": "{{instance}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Pod Count by Phase",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(kube_pod_status_phase{namespace=~\"devops-app|jenkins|observability\"}) by (phase)",
+          "legendFormat": "{{phase}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Pod Restarts (1h) by Pod",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"devops-app|jenkins|observability\"}[1h])) by (namespace, pod)",
+          "legendFormat": "{{namespace}}/{{pod}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Deployment Replicas: Desired vs Available (devops-app)",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "kube_deployment_spec_replicas{namespace=\"devops-app\"}",
+          "legendFormat": "{{deployment}} desired",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        },
+        {
+          "refId": "B",
+          "expr": "kube_deployment_status_replicas_available{namespace=\"devops-app\"}",
+          "legendFormat": "{{deployment}} available",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Container CPU Usage by Namespace",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"devops-app|jenkins|observability\", container!=\"\", container!=\"POD\"}[5m])) by (namespace)",
+          "legendFormat": "{{namespace}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Container Memory Usage by Namespace",
+      "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(container_memory_working_set_bytes{namespace=~\"devops-app|jenkins|observability\", container!=\"\", container!=\"POD\"}) by (namespace)",
+          "legendFormat": "{{namespace}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "PVC Usage %",
+      "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * 100",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent" }, "overrides": [] },
+      "options": { "showHeader": true },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "endpoint": true,
+              "instance": true,
+              "job": true,
+              "namespace": true,
+              "service": true,
+              "metrics_path": true,
+              "node": true,
+              "__name__": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "exported_namespace": "Namespace",
+              "persistentvolumeclaim": "PVC",
+              "Value": "Usage %"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Active Kubernetes Alerts",
+      "gridPos": { "x": 0, "y": 32, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ALERTS{category=\"k8s\"}",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true }
+    }
+  ]
+}
