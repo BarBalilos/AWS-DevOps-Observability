@@ -1,0 +1,29 @@
+=== jenkins_queue_size_value ===
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "jenkins_queue_size_value",
+          "container": "jenkins",
+          "endpoint": "metrics",
+          "instance": "10.42.1.152:8080",
+          "job": "jenkins-metrics",
+          "namespace": "jenkins",
+          "pod": "jenkins-0",
+          "service": "jenkins-metrics"
+        },
+        "value": [
+          1788376410.186,
+          "4"
+        ]
+      }
+    ]
+  }
+}
+=== kubectl get nodes ===
+NAME                      STATUS                     ROLES           AGE   VERSION
+k3d-devops-k8s-agent-0    Ready,SchedulingDisabled   <none>          18d   v1.35.5+k3s1
+k3d-devops-k8s-server-0   Ready,SchedulingDisabled   control-plane   18d   v1.35.5+k3s1

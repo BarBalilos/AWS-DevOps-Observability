@@ -1,0 +1,96 @@
+        "user-agent": "Alertmanager/0.34.0",
+        "content-length": "1575",
+        "content-type": "application/json"
+    },
+    "method": "POST",
+    "body": "{\"receiver\":\"demo-webhook\",\"status\":\"firing\",\"alerts\":[{\"status\":\"firing\",\"labels\":{\"alertname\":\"HighErrorRate\",\"category\":\"app\",\"job\":\"devops-app/backend\",\"prometheus\":\"observability/kube-prometheus-stack-prometheus\",\"severity\":\"critical\"},\"annotations\":{\"description\":\"devops-app/backend has served less than 99% successful (non-5xx) responses over the last 5 minutes (current value: 13.23%).\",\"runbook_url\":\"https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/HighErrorRate.md\",\"summary\":\"devops-app/backend availability SLO breach\"},\"startsAt\":\"2026-09-02T17:32:29.531Z\",\"endsAt\":\"0001-01-01T00:00:00Z\",\"generatorURL\":\"http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=slo%3Ahttp_availability_ratio%3Arate5m+%3C+0.99\\u0026g0.tab=1\",\"fingerprint\":\"21dc2322538779b6\"}],\"notification_reason\":\"first notification\",\"groupLabels\":{\"alertname\":\"HighErrorRate\"},\"commonLabels\":{\"alertname\":\"HighErrorRate\",\"category\":\"app\",\"job\":\"devops-app/backend\",\"prometheus\":\"observability/kube-prometheus-stack-prometheus\",\"severity\":\"critical\"},\"commonAnnotations\":{\"description\":\"devops-app/backend has served less than 99% successful (non-5xx) responses over the last 5 minutes (current value: 13.23%).\",\"runbook_url\":\"https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/HighErrorRate.md\",\"summary\":\"devops-app/backend availability SLO breach\"},\"routeLabels\":{},\"externalURL\":\"http://kube-prometheus-stack-alertmanager.observability:9093\",\"version\":\"4\",\"groupKey\":\"{}:{alertname=\\\"HighErrorRate\\\"}\",\"truncatedAlerts\":0}\n",
+    "fresh": false,
+    "hostname": "alertmanager-demo-receiver.observability.svc.cluster.local",
+    "ip": "::ffff:10.42.0.81",
+    "ips": [],
+    "protocol": "http",
+    "query": {},
+    "subdomains": [
+        "svc",
+        "observability",
+        "alertmanager-demo-receiver"
+    ],
+    "xhr": false,
+    "os": {
+        "hostname": "alertmanager-demo-receiver-7fdbc9cb78-pcktz"
+    },
+    "connection": {},
+    "json": {
+        "receiver": "demo-webhook",
+        "status": "firing",
+        "alerts": [
+            {
+                "status": "firing",
+                "labels": {
+                    "alertname": "HighErrorRate",
+                    "category": "app",
+                    "job": "devops-app/backend",
+                    "prometheus": "observability/kube-prometheus-stack-prometheus",
+                    "severity": "critical"
+                },
+                "annotations": {
+                    "description": "devops-app/backend has served less than 99% successful (non-5xx) responses over the last 5 minutes (current value: 13.23%).",
+                    "runbook_url": "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/HighErrorRate.md",
+                    "summary": "devops-app/backend availability SLO breach"
+                },
+                "startsAt": "2026-09-02T17:32:29.531Z",
+                "endsAt": "0001-01-01T00:00:00Z",
+                "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=slo%3Ahttp_availability_ratio%3Arate5m+%3C+0.99&g0.tab=1",
+                "fingerprint": "21dc2322538779b6"
+            }
+        ],
+        "notification_reason": "first notification",
+        "groupLabels": {
+            "alertname": "HighErrorRate"
+        },
+        "commonLabels": {
+            "alertname": "HighErrorRate",
+            "category": "app",
+            "job": "devops-app/backend",
+            "prometheus": "observability/kube-prometheus-stack-prometheus",
+            "severity": "critical"
+        },
+        "commonAnnotations": {
+            "description": "devops-app/backend has served less than 99% successful (non-5xx) responses over the last 5 minutes (current value: 13.23%).",
+            "runbook_url": "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/HighErrorRate.md",
+            "summary": "devops-app/backend availability SLO breach"
+        },
+        "routeLabels": {},
+        "externalURL": "http://kube-prometheus-stack-alertmanager.observability:9093",
+        "version": "4",
+        "groupKey": "{}:{alertname=\"HighErrorRate\"}",
+        "truncatedAlerts": 0
+    }
+}
+::ffff:10.42.0.81 - - [02/Sep/2026:17:33:06 +0000] "POST /alerts HTTP/1.1" 200 4295 "-" "Alertmanager/0.34.0"
+{
+    "path": "/alerts",
+    "headers": {
+        "host": "alertmanager-demo-receiver.observability.svc.cluster.local:8080",
+        "user-agent": "Alertmanager/0.34.0",
+        "content-length": "2194",
+        "content-type": "application/json"
+    },
+    "method": "POST",
+    "body": "{\"receiver\":\"demo-webhook\",\"status\":\"resolved\",\"alerts\":[{\"status\":\"resolved\",\"labels\":{\"alertname\":\"AlertmanagerClusterCrashlooping\",\"namespace\":\"observability\",\"prometheus\":\"observability/kube-prometheus-stack-prometheus\",\"service\":\"kube-prometheus-stack-alertmanager\",\"severity\":\"critical\"},\"annotations\":{\"description\":\"100% of Alertmanager instances within the  cluster have restarted at least 5 times in the last 10m.\",\"runbook_url\":\"https://runbooks.prometheus-operator.dev/runbooks/alertmanager/alertmanagerclustercrashlooping\",\"summary\":\"Half or more of the Alertmanager instances within the same cluster are crashlooping.\"},\"startsAt\":\"2026-09-02T17:19:25.079Z\",\"endsAt\":\"2026-09-02T17:37:55.079Z\",\"generatorURL\":\"http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=%28count+by+%28namespace%2C+service%2C+cluster%29+%28changes%28process_start_time_seconds%7Bcontainer%3D%22alertmanager%22%2Cjob%3D%22kube-prometheus-stack-alertmanager%22%2Cnamespace%3D%22observability%22%7D%5B10m%5D%29+%3E+4%29+%2F+count+by+%28namespace%2C+service%2C+cluster%29+%28up%7Bcontainer%3D%22alertmanager%22%2Cjob%3D%22kube-prometheus-stack-alertmanager%22%2Cnamespace%3D%22observability%22%7D%29%29+%3E%3D+0.5\\u0026g0.tab=1\",\"fingerprint\":\"1328e8d74e287bd2\"}],\"notification_reason\":\"all alerts resolved\",\"groupLabels\":{\"alertname\":\"AlertmanagerClusterCrashlooping\",\"namespace\":\"observability\"},\"commonLabels\":{\"alertname\":\"AlertmanagerClusterCrashlooping\",\"namespace\":\"observability\",\"prometheus\":\"observability/kube-prometheus-stack-prometheus\",\"service\":\"kube-prometheus-stack-alertmanager\",\"severity\":\"critical\"},\"commonAnnotations\":{\"description\":\"100% of Alertmanager instances within the  cluster have restarted at least 5 times in the last 10m.\",\"runbook_url\":\"https://runbooks.prometheus-operator.dev/runbooks/alertmanager/alertmanagerclustercrashlooping\",\"summary\":\"Half or more of the Alertmanager instances within the same cluster are crashlooping.\"},\"routeLabels\":{},\"externalURL\":\"http://kube-prometheus-stack-alertmanager.observability:9093\",\"version\":\"4\",\"groupKey\":\"{}:{alertname=\\\"AlertmanagerClusterCrashlooping\\\", namespace=\\\"observability\\\"}\",\"truncatedAlerts\":0}\n",
+    "fresh": false,
+    "hostname": "alertmanager-demo-receiver.observability.svc.cluster.local",
+    "ip": "::ffff:10.42.0.81",
+    "ips": [],
+    "protocol": "http",
+    "query": {},
+    "subdomains": [
+        "svc",
+        "observability",
+        "alertmanager-demo-receiver"
+    ],
+    "xhr": false,
+    "os": {
+        "hostname": "alertmanager-demo-receiver-7fdbc9cb78-pcktz"
+    },
+    "connection": {},

@@ -1,0 +1,46 @@
+=== kubectl get pods ===
+NAME                       READY   STATUS             RESTARTS       AGE
+backend-56588f64db-ctjx4   0/1     CrashLoopBackOff   6 (73s ago)    6m43s
+backend-97cc47f98-4jzgk    1/1     Running            3 (170m ago)   24h
+=== kubectl get deployment ===
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+backend   1/1     1            1           18d
+=== up{} for backend ===
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "up",
+          "container": "backend",
+          "endpoint": "metrics",
+          "instance": "10.42.0.73:9000",
+          "job": "devops-app/backend",
+          "namespace": "devops-app",
+          "pod": "backend-97cc47f98-4jzgk"
+        },
+        "value": [
+          1788378976.977,
+          "1"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "up",
+          "container": "backend",
+          "endpoint": "metrics",
+          "instance": "10.42.0.87:9000",
+          "job": "devops-app/backend",
+          "namespace": "devops-app",
+          "pod": "backend-56588f64db-ctjx4"
+        },
+        "value": [
+          1788378976.977,
+          "0"
+        ]
+      }
+    ]
+  }
+}

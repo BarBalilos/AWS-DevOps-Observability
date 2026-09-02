@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "ALERTS",
+          "alertname": "PrometheusTargetDown",
+          "alertstate": "firing",
+          "category": "monitoring-system",
+          "container": "backend",
+          "endpoint": "metrics",
+          "instance": "10.42.0.87:9000",
+          "job": "devops-app/backend",
+          "namespace": "devops-app",
+          "pod": "backend-56588f64db-ctjx4",
+          "severity": "critical"
+        },
+        "value": [
+          1788378971.460,
+          "1"
+        ]
+      }
+    ]
+  }
+}

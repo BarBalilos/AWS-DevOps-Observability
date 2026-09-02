@@ -1,0 +1,29 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "ALERTS",
+          "alertname": "ReplicasMismatch",
+          "alertstate": "firing",
+          "category": "k8s",
+          "container": "kube-state-metrics",
+          "deployment": "frontend",
+          "endpoint": "http",
+          "instance": "10.42.0.80:8080",
+          "job": "kube-state-metrics",
+          "namespace": "devops-app",
+          "pod": "kube-prometheus-stack-kube-state-metrics-5945c87df-tt9vf",
+          "service": "kube-prometheus-stack-kube-state-metrics",
+          "severity": "critical"
+        },
+        "value": [
+          1788373873.827,
+          "1"
+        ]
+      }
+    ]
+  }
+}

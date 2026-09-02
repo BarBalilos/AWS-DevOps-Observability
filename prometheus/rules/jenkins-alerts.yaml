@@ -11,7 +11,7 @@ spec:
       rules:
         - alert: JenkinsQueueStuck
           expr: |
-            default_jenkins_queue_size_value > 3
+            jenkins_queue_size_value > 3
           for: 10m
           labels:
             severity: warning

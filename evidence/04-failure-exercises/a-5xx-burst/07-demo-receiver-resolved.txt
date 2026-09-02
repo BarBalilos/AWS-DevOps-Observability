@@ -1,0 +1,80 @@
+--
+        "hostname": "alertmanager-demo-receiver-7fdbc9cb78-pcktz"
+    },
+    "connection": {},
+    "json": {
+        "receiver": "demo-webhook",
+        "status": "resolved",
+        "alerts": [
+            {
+                "status": "resolved",
+                "labels": {
+                    "alertname": "InfoInhibitor",
+                    "namespace": "observability",
+                    "prometheus": "observability/kube-prometheus-stack-prometheus",
+                    "severity": "none"
+                },
+                "annotations": {
+                    "description": "This is an alert that is used to inhibit info alerts.\nBy themselves, the info-level alerts are sometimes very noisy, but they are relevant when combined with\nother alerts.\nThis alert fires whenever there's a severity=\"info\" alert, and stops firing when another alert with a\nseverity of 'warning' or 'critical' starts firing on the same namespace.\nThis alert should be routed to a null receiver and configured to inhibit alerts with severity=\"info\".\n",
+                    "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/general/infoinhibitor",
+                    "summary": "Info-level alert inhibition."
+                },
+                "startsAt": "2026-09-02T17:40:42.477Z",
+                "endsAt": "2026-09-02T17:46:42.477Z",
+                "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=group+by+%28namespace%29+%28ALERTS%7Bseverity%3D%22info%22%7D+%3D%3D+1%29+unless+on+%28namespace%29+group+by+%28namespace%29+%28ALERTS%7Balertname%21%3D%22InfoInhibitor%22%2Calertstate%3D%22firing%22%2Cseverity%3D~%22warning%7Ccritical%22%7D+%3D%3D+1%29&g0.tab=1",
+                "fingerprint": "04ce06eee1af6e3d"
+            }
+        ],
+        "notification_reason": "all alerts resolved",
+        "groupLabels": {
+            "alertname": "InfoInhibitor",
+            "namespace": "observability"
+        },
+        "commonLabels": {
+            "alertname": "InfoInhibitor",
+            "namespace": "observability",
+            "prometheus": "observability/kube-prometheus-stack-prometheus",
+            "severity": "none"
+        },
+        "commonAnnotations": {
+            "description": "This is an alert that is used to inhibit info alerts.\nBy themselves, the info-level alerts are sometimes very noisy, but they are relevant when combined with\nother alerts.\nThis alert fires whenever there's a severity=\"info\" alert, and stops firing when another alert with a\nseverity of 'warning' or 'critical' starts firing on the same namespace.\nThis alert should be routed to a null receiver and configured to inhibit alerts with severity=\"info\".\n",
+--
+        "hostname": "alertmanager-demo-receiver-7fdbc9cb78-pcktz"
+    },
+    "connection": {},
+    "json": {
+        "receiver": "demo-webhook",
+        "status": "resolved",
+        "alerts": [
+            {
+                "status": "resolved",
+                "labels": {
+                    "alertname": "HighErrorRate",
+                    "category": "app",
+                    "job": "devops-app/backend",
+                    "prometheus": "observability/kube-prometheus-stack-prometheus",
+                    "severity": "critical"
+                },
+                "annotations": {
+                    "description": "devops-app/backend has served less than 99% successful (non-5xx) responses over the last 5 minutes (current value: 59.42%).",
+                    "runbook_url": "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/HighErrorRate.md",
+                    "summary": "devops-app/backend availability SLO breach"
+                },
+                "startsAt": "2026-09-02T17:55:29.531Z",
+                "endsAt": "2026-09-02T18:00:59.531Z",
+                "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=slo%3Ahttp_availability_ratio%3Arate5m+%3C+0.99&g0.tab=1",
+                "fingerprint": "21dc2322538779b6"
+            }
+        ],
+        "notification_reason": "all alerts resolved",
+        "groupLabels": {
+            "alertname": "HighErrorRate"
+        },
+        "commonLabels": {
+            "alertname": "HighErrorRate",
+            "category": "app",
+            "job": "devops-app/backend",
+            "prometheus": "observability/kube-prometheus-stack-prometheus",
+            "severity": "critical"
+        },
+        "commonAnnotations": {

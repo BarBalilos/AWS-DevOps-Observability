@@ -197,7 +197,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "default_jenkins_queue_size_value",
+          "expr": "jenkins_queue_size_value",
           "legendFormat": "queue size",
           "datasource": { "type": "prometheus", "uid": "$datasource" }
         }

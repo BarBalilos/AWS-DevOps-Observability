@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "slo:http_availability_ratio:rate5m",
+          "job": "devops-app/backend"
+        },
+        "value": [
+          1788370674.133,
+          "0.12944983818770225"
+        ]
+      }
+    ]
+  }
+}

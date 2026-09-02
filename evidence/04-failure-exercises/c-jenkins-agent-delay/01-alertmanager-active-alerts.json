@@ -1,0 +1,38 @@
+[
+  {
+    "annotations": {
+      "description": "Jenkins has had more than 3 queued builds for over 10 minutes, indicating insufficient agent capacity or a stuck/slow build blocking the queue.",
+      "runbook_url": "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/JenkinsQueueStuck.md",
+      "summary": "Jenkins build queue is backed up"
+    },
+    "endsAt": "2026-09-02T19:16:05.971Z",
+    "fingerprint": "8dcbf6ab64e6ce81",
+    "receivers": [
+      {
+        "name": "demo-webhook"
+      }
+    ],
+    "startsAt": "2026-09-02T19:12:05.971Z",
+    "status": {
+      "inhibitedBy": [],
+      "mutedBy": [],
+      "silencedBy": [],
+      "state": "active"
+    },
+    "updatedAt": "2026-09-02T19:12:35.372Z",
+    "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=jenkins_queue_size_value+%3E+3&g0.tab=1",
+    "labels": {
+      "alertname": "JenkinsQueueStuck",
+      "category": "jenkins",
+      "container": "jenkins",
+      "endpoint": "metrics",
+      "instance": "10.42.1.152:8080",
+      "job": "jenkins-metrics",
+      "namespace": "jenkins",
+      "pod": "jenkins-0",
+      "prometheus": "observability/kube-prometheus-stack-prometheus",
+      "service": "jenkins-metrics",
+      "severity": "warning"
+    }
+  }
+]

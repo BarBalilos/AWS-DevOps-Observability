@@ -1,0 +1,22 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "ALERTS",
+          "alertname": "HighErrorRate",
+          "alertstate": "firing",
+          "category": "app",
+          "job": "devops-app/backend",
+          "severity": "critical"
+        },
+        "value": [
+          1788370674.152,
+          "1"
+        ]
+      }
+    ]
+  }
+}

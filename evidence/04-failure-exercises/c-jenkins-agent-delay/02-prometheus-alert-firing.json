@@ -1,0 +1,28 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "ALERTS",
+          "alertname": "JenkinsQueueStuck",
+          "alertstate": "firing",
+          "category": "jenkins",
+          "container": "jenkins",
+          "endpoint": "metrics",
+          "instance": "10.42.1.152:8080",
+          "job": "jenkins-metrics",
+          "namespace": "jenkins",
+          "pod": "jenkins-0",
+          "service": "jenkins-metrics",
+          "severity": "warning"
+        },
+        "value": [
+          1788376403.932,
+          "1"
+        ]
+      }
+    ]
+  }
+}

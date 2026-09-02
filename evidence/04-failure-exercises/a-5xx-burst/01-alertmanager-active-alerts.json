@@ -1,0 +1,147 @@
+[
+  {
+    "annotations": {
+      "description": "devops-app/backend has served less than 99% successful (non-5xx) responses over the last 5 minutes (current value: 15.94%).",
+      "runbook_url": "https://github.com/BarBalilos/AWS-DevOps-Observability/blob/main/runbooks/HighErrorRate.md",
+      "summary": "devops-app/backend availability SLO breach"
+    },
+    "endsAt": "2026-09-02T17:43:59.531Z",
+    "fingerprint": "21dc2322538779b6",
+    "receivers": [
+      {
+        "name": "demo-webhook"
+      }
+    ],
+    "startsAt": "2026-09-02T17:32:29.531Z",
+    "status": {
+      "inhibitedBy": [],
+      "mutedBy": [],
+      "silencedBy": [],
+      "state": "active"
+    },
+    "updatedAt": "2026-09-02T17:40:02.926Z",
+    "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=slo%3Ahttp_availability_ratio%3Arate5m+%3C+0.99&g0.tab=1",
+    "labels": {
+      "alertname": "HighErrorRate",
+      "category": "app",
+      "job": "devops-app/backend",
+      "prometheus": "observability/kube-prometheus-stack-prometheus",
+      "severity": "critical"
+    }
+  },
+  {
+    "annotations": {
+      "description": "KubeControllerManager has disappeared from Prometheus target discovery.",
+      "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubecontrollermanagerdown",
+      "summary": "Target disappeared from Prometheus target discovery."
+    },
+    "endsAt": "2026-09-02T17:43:03.261Z",
+    "fingerprint": "24ec6b7fa887c4e7",
+    "receivers": [
+      {
+        "name": "demo-webhook"
+      }
+    ],
+    "startsAt": "2026-09-02T17:21:03.261Z",
+    "status": {
+      "inhibitedBy": [],
+      "mutedBy": [],
+      "silencedBy": [],
+      "state": "active"
+    },
+    "updatedAt": "2026-09-02T17:39:07.200Z",
+    "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=absent%28up%7Bjob%3D%22kube-controller-manager%22%7D%29&g0.tab=1",
+    "labels": {
+      "alertname": "KubeControllerManagerDown",
+      "job": "kube-controller-manager",
+      "prometheus": "observability/kube-prometheus-stack-prometheus",
+      "severity": "critical"
+    }
+  },
+  {
+    "annotations": {
+      "description": "KubeProxy has disappeared from Prometheus target discovery.",
+      "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeproxydown",
+      "summary": "Target disappeared from Prometheus target discovery."
+    },
+    "endsAt": "2026-09-02T17:43:00.643Z",
+    "fingerprint": "45914b0aa2df7946",
+    "receivers": [
+      {
+        "name": "demo-webhook"
+      }
+    ],
+    "startsAt": "2026-09-02T17:21:00.643Z",
+    "status": {
+      "inhibitedBy": [],
+      "mutedBy": [],
+      "silencedBy": [],
+      "state": "active"
+    },
+    "updatedAt": "2026-09-02T17:39:04.582Z",
+    "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=absent%28up%7Bjob%3D%22kube-proxy%22%7D%29&g0.tab=1",
+    "labels": {
+      "alertname": "KubeProxyDown",
+      "job": "kube-proxy",
+      "prometheus": "observability/kube-prometheus-stack-prometheus",
+      "severity": "critical"
+    }
+  },
+  {
+    "annotations": {
+      "description": "KubeScheduler has disappeared from Prometheus target discovery.",
+      "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeschedulerdown",
+      "summary": "Target disappeared from Prometheus target discovery."
+    },
+    "endsAt": "2026-09-02T17:44:04.555Z",
+    "fingerprint": "83b3417289a433e4",
+    "receivers": [
+      {
+        "name": "demo-webhook"
+      }
+    ],
+    "startsAt": "2026-09-02T17:20:34.555Z",
+    "status": {
+      "inhibitedBy": [],
+      "mutedBy": [],
+      "silencedBy": [],
+      "state": "active"
+    },
+    "updatedAt": "2026-09-02T17:40:08.008Z",
+    "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=absent%28up%7Bjob%3D%22kube-scheduler%22%7D%29&g0.tab=1",
+    "labels": {
+      "alertname": "KubeSchedulerDown",
+      "job": "kube-scheduler",
+      "prometheus": "observability/kube-prometheus-stack-prometheus",
+      "severity": "critical"
+    }
+  },
+  {
+    "annotations": {
+      "description": "This is an alert meant to ensure that the entire alerting pipeline is functional.\nThis alert is always firing, therefore it should always be firing in Alertmanager\nand always fire against a receiver. There are integrations with various notification\nmechanisms that send a notification when this alert is not firing. For example the\n\"DeadMansSnitch\" integration in PagerDuty.\n",
+      "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/general/watchdog",
+      "summary": "An alert that should always be firing to certify that Alertmanager is working properly."
+    },
+    "endsAt": "2026-09-02T17:44:12.477Z",
+    "fingerprint": "d3ad82071a644fae",
+    "receivers": [
+      {
+        "name": "null"
+      }
+    ],
+    "startsAt": "2026-09-02T17:05:42.477Z",
+    "status": {
+      "inhibitedBy": [],
+      "mutedBy": [],
+      "silencedBy": [],
+      "state": "active"
+    },
+    "updatedAt": "2026-09-02T17:40:15.899Z",
+    "generatorURL": "http://kube-prometheus-stack-prometheus.observability:9090/graph?g0.expr=vector%281%29&g0.tab=1",
+    "labels": {
+      "alertname": "Watchdog",
+      "prometheus": "observability/kube-prometheus-stack-prometheus",
+      "severity": "none"
+    }
+  }
+]
