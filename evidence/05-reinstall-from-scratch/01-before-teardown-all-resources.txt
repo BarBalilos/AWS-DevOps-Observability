@@ -1,0 +1,102 @@
+NAME                                                           READY   STATUS    RESTARTS      AGE
+pod/alertmanager-demo-receiver-7fdbc9cb78-pcktz                1/1     Running   3 (27m ago)   7d19h
+pod/alertmanager-kube-prometheus-stack-alertmanager-0          2/2     Running   8 (27m ago)   7d21h
+pod/kube-prometheus-stack-grafana-7f4d964cbd-k7dx8             3/3     Running   9 (27m ago)   4d23h
+pod/kube-prometheus-stack-kube-state-metrics-5945c87df-tt9vf   1/1     Running   4 (27m ago)   7d21h
+pod/kube-prometheus-stack-operator-7d6875cfff-f9zf2            1/1     Running   4 (27m ago)   7d21h
+pod/kube-prometheus-stack-prometheus-node-exporter-9xv8w       1/1     Running   4 (27m ago)   7d21h
+pod/kube-prometheus-stack-prometheus-node-exporter-c9p2c       1/1     Running   6             7d21h
+pod/prometheus-kube-prometheus-stack-prometheus-0              2/2     Running   0             41h
+
+NAME                                                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+service/alertmanager-demo-receiver                       ClusterIP   10.43.4.32      <none>        8080/TCP                     7d20h
+service/alertmanager-operated                            ClusterIP   None            <none>        9093/TCP,9094/TCP,9094/UDP   7d21h
+service/kube-prometheus-stack-alertmanager               ClusterIP   10.43.128.234   <none>        9093/TCP,8080/TCP            7d21h
+service/kube-prometheus-stack-grafana                    ClusterIP   10.43.206.253   <none>        80/TCP                       7d21h
+service/kube-prometheus-stack-kube-state-metrics         ClusterIP   10.43.199.126   <none>        8080/TCP                     7d21h
+service/kube-prometheus-stack-operator                   ClusterIP   10.43.51.96     <none>        443/TCP                      7d21h
+service/kube-prometheus-stack-prometheus                 ClusterIP   10.43.233.73    <none>        9090/TCP,8080/TCP            7d21h
+service/kube-prometheus-stack-prometheus-node-exporter   ClusterIP   10.43.45.66     <none>        9100/TCP                     7d21h
+service/prometheus-operated                              ClusterIP   None            <none>        9090/TCP                     7d21h
+
+NAME                                                            DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+daemonset.apps/kube-prometheus-stack-prometheus-node-exporter   2         2         2       2            2           kubernetes.io/os=linux   7d21h
+
+NAME                                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/alertmanager-demo-receiver                 1/1     1            1           7d20h
+deployment.apps/kube-prometheus-stack-grafana              1/1     1            1           7d21h
+deployment.apps/kube-prometheus-stack-kube-state-metrics   1/1     1            1           7d21h
+deployment.apps/kube-prometheus-stack-operator             1/1     1            1           7d21h
+
+NAME                                                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/alertmanager-demo-receiver-7fdbc9cb78                1         1         1       7d20h
+replicaset.apps/kube-prometheus-stack-grafana-56bb9d9cc6             0         0         0       7d21h
+replicaset.apps/kube-prometheus-stack-grafana-7f4d964cbd             1         1         1       4d23h
+replicaset.apps/kube-prometheus-stack-kube-state-metrics-5945c87df   1         1         1       7d21h
+replicaset.apps/kube-prometheus-stack-operator-7d6875cfff            1         1         1       7d21h
+
+NAME                                                               READY   AGE
+statefulset.apps/alertmanager-kube-prometheus-stack-alertmanager   1/1     7d21h
+statefulset.apps/prometheus-kube-prometheus-stack-prometheus       1/1     7d21h
+NAME                                                                                                   AGE
+prometheusrule.monitoring.coreos.com/app-alerts                                                        5d
+prometheusrule.monitoring.coreos.com/jenkins-alerts                                                    5d
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-alertmanager.rules                          7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-config-reloaders                            7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-etcd                                        7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-general.rules                               7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-k8s.rules.container-cpu-usage-seconds-tot   7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-k8s.rules.container-memory-cache            7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-k8s.rules.container-memory-rss              7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-k8s.rules.container-memory-swap             7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-k8s.rules.container-memory-working-set-by   7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-k8s.rules.container-resource                7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-k8s.rules.pod-owner                         7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kube-apiserver-availability.rules           7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kube-apiserver-burnrate.rules               7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kube-apiserver-histogram.rules              7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kube-apiserver-slos                         7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kube-prometheus-general.rules               7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kube-prometheus-node-recording.rules        7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kube-scheduler.rules                        7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kube-state-metrics                          7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubelet.rules                               7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-apps                             7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-resources                        7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-storage                          7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-system                           7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-system-apiserver                 7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-system-controller-manager        7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-system-kube-proxy                7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-system-kubelet                   7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-kubernetes-system-scheduler                 7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-node-exporter                               7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-node-exporter.rules                         7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-node-network                                7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-node.rules                                  7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-prometheus                                  7d21h
+prometheusrule.monitoring.coreos.com/kube-prometheus-stack-prometheus-operator                         7d21h
+prometheusrule.monitoring.coreos.com/kubernetes-alerts                                                 5d
+prometheusrule.monitoring.coreos.com/monitoring-alerts                                                 5d
+prometheusrule.monitoring.coreos.com/slo-recording-rules                                               5d
+
+NAME                                                                                  AGE
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-alertmanager               7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-apiserver                  7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-coredns                    7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-grafana                    7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-kube-controller-manager    7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-kube-etcd                  7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-kube-proxy                 7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-kube-scheduler             7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-kube-state-metrics         7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-kubelet                    7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-operator                   7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-prometheus                 7d21h
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-prometheus-node-exporter   7d21h
+NAME       AGE
+backend    7d20h
+frontend   7d19h
+worker     7d20h
+NAME      AGE
+jenkins   7d19h

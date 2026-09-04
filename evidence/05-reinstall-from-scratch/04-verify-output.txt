@@ -1,0 +1,44 @@
+
+=== Pods ===
+NAME                                                       READY   STATUS    RESTARTS   AGE
+alertmanager-demo-receiver-7fdbc9cb78-nn2b4                1/1     Running   0          39s
+alertmanager-kube-prometheus-stack-alertmanager-0          2/2     Running   0          63s
+kube-prometheus-stack-grafana-74567f9d76-44r7c             3/3     Running   0          69s
+kube-prometheus-stack-kube-state-metrics-5945c87df-bxhfd   1/1     Running   0          69s
+kube-prometheus-stack-operator-7d6875cfff-vwsls            1/1     Running   0          69s
+kube-prometheus-stack-prometheus-node-exporter-fr8zg       1/1     Running   0          69s
+kube-prometheus-stack-prometheus-node-exporter-lp6sd       1/1     Running   0          69s
+prometheus-kube-prometheus-stack-prometheus-0              2/2     Running   0          63s
+
+=== Core workloads ready ===
+  [OK]   Prometheus StatefulSet ready
+  [OK]   Alertmanager StatefulSet ready
+  [OK]   Grafana Deployment ready
+  [OK]   kube-state-metrics Deployment ready
+  [OK]   Prometheus Operator Deployment ready
+  [OK]   Alertmanager demo receiver ready
+
+=== node-exporter DaemonSet present ===
+  [OK]   node-exporter DaemonSet exists
+
+=== PrometheusRule objects present ===
+  [OK]   PrometheusRule/app-alerts exists
+  [OK]   PrometheusRule/jenkins-alerts exists
+  [OK]   PrometheusRule/kubernetes-alerts exists
+  [OK]   PrometheusRule/monitoring-alerts exists
+  [OK]   PrometheusRule/slo-recording-rules exists
+
+=== PodMonitors present ===
+  [OK]   PodMonitor/backend exists (devops-app)
+  [OK]   PodMonitor/frontend exists (devops-app)
+  [OK]   PodMonitor/worker exists (devops-app)
+
+=== ServiceMonitors present ===
+  [OK]   ServiceMonitor/jenkins exists (jenkins)
+
+=== Grafana dashboard ConfigMaps present and labeled ===
+  [OK]   ConfigMap/grafana-dashboard-application-overview labeled grafana_dashboard=1
+  [OK]   ConfigMap/grafana-dashboard-jenkins-delivery labeled grafana_dashboard=1
+  [OK]   ConfigMap/grafana-dashboard-kubernetes-cluster labeled grafana_dashboard=1
+
+All checks passed.

@@ -1,0 +1,54 @@
+==> 1/6  Ensuring namespace 'observability' exists and is labeled
+namespace/observability created
+==> 2/6  Adding/updating the prometheus-community Helm repo
+==> 3/6  Installing/upgrading kube-prometheus-stack (chart v88.5.4)
+Release "kube-prometheus-stack" does not exist. Installing it now.
+NAME: kube-prometheus-stack
+LAST DEPLOYED: Fri Sep  4 16:20:47 2026
+NAMESPACE: observability
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+kube-prometheus-stack has been installed. Check its status by running:
+  kubectl --namespace observability get pods -l "release=kube-prometheus-stack"
+
+Get Grafana 'admin' user password by running:
+
+  kubectl --namespace observability get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+
+Access Grafana local instance:
+
+  export POD_NAME=$(kubectl --namespace observability get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
+  kubectl --namespace observability port-forward $POD_NAME 3000
+
+Get your grafana admin user password by running:
+
+  kubectl get secret --namespace observability -l app.kubernetes.io/component=admin-secret -o jsonpath="{.items[0].data.admin-password}" | base64 --decode ; echo
+
+
+Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
+==> 4/6  Applying Alertmanager demo receiver
+deployment.apps/alertmanager-demo-receiver created
+service/alertmanager-demo-receiver created
+==> 5/6  Applying ServiceMonitors/PodMonitors and PrometheusRules
+podmonitor.monitoring.coreos.com/backend created
+podmonitor.monitoring.coreos.com/frontend created
+servicemonitor.monitoring.coreos.com/jenkins created
+podmonitor.monitoring.coreos.com/worker created
+prometheusrule.monitoring.coreos.com/app-alerts created
+prometheusrule.monitoring.coreos.com/jenkins-alerts created
+prometheusrule.monitoring.coreos.com/kubernetes-alerts created
+prometheusrule.monitoring.coreos.com/monitoring-alerts created
+prometheusrule.monitoring.coreos.com/slo-recording-rules created
+==> 6/6  Provisioning Grafana dashboards from grafana/dashboards/*.json
+    - grafana-dashboard-application-overview
+configmap/grafana-dashboard-application-overview created
+configmap/grafana-dashboard-application-overview labeled
+    - grafana-dashboard-jenkins-delivery
+configmap/grafana-dashboard-jenkins-delivery created
+configmap/grafana-dashboard-jenkins-delivery labeled
+    - grafana-dashboard-kubernetes-cluster
+configmap/grafana-dashboard-kubernetes-cluster created
+configmap/grafana-dashboard-kubernetes-cluster labeled
+==> Done. Verify with: scripts/verify.sh

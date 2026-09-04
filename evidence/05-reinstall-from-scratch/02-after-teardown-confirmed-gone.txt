@@ -1,0 +1,4 @@
+=== kubectl get namespace observability ===
+Error from server (NotFound): namespaces "observability" not found
+=== kubectl get all -n observability ===
+No resources found in observability namespace.
