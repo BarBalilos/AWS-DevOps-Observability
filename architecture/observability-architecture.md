@@ -78,11 +78,21 @@ flowchart TB
 
 **Grafana** — datasource (Prometheus) and all three required dashboards are provisioned automatically from Git: dashboard JSON files in `grafana/dashboards/` are loaded into ConfigMaps labeled `grafana_dashboard: "1"`, which the chart's dashboard sidecar picks up and imports with zero manual UI configuration.
 
-**kube-state-metrics** and **node-exporter** — deployed as part of the same Helm release, providing Kubernetes object-state metrics (deployment replica counts, pod status, etc.) and node-level OS metrics (CPU, memory, disk, network) respectively.
+**kube-state-metrics** and **node-exporter** — deployed as part of the same Helm release, providing Kubernetes object-state metrics (deployment replica counts, pod status, etc.) and node-level OS metrics (CPU, memory, disk, network) respectively. **kubelet/cAdvisor metrics** are also scraped by chart default (confirmed live: `job="kubelet"` targets report `up`), covering per-node and per-container resource and lifecycle metrics (including OOMKilled reasons and CPU throttling).
 
 **Application instrumentation** — `backend` and `worker` (Flask-based) expose `/metrics` on a dedicated port (`:9000`), separate from the application port, covering request counts/latency histograms, an `app_info` metric, and a business metric (records created / files uploaded). `frontend` (nginx) is instrumented via an `nginx-prometheus-exporter` sidecar rather than in-process instrumentation.
 
-**Jenkins** — instrumented via the Jenkins Prometheus plugin, exposing two metric families: `default_jenkins_*` (builds, executors, nodes) and plain `jenkins_*` (queue, health checks, tasks). Scraped via a dedicated `ServiceMonitor` (`prometheus/monitors/jenkins-servicemonitor.yaml`).
+**Jenkins** — instrumented via the Jenkins Prometheus plugin, exposing three metric families in practice: `default_jenkins_*` (builds, executors, nodes), plain `jenkins_*` (queue, health checks, tasks), and standard `jvm_*` (controller heap/thread metrics, confirmed scraped under `job="jenkins-metrics"`). Scraped via a dedicated `ServiceMonitor` (`prometheus/monitors/jenkins-servicemonitor.yaml`).
+
+## Storage, Retention & Recovery
+
+**Retention.** Prometheus keeps 10 days of data, capped by an 8GB size-based safety limit (whichever is hit first) — both set explicitly in `helm/kube-prometheus-stack/values.yaml`. Alertmanager keeps 120h (5 days) of its own notification/silence history, which is unrelated to metric data.
+
+**Storage consumption (measured).** The Prometheus PVC is 10Gi and the Alertmanager PVC is 1Gi (both on the `local-path` StorageClass). After roughly two hours of scraping the full stack — every application, Jenkins, and Kubernetes target — both were at ~1.83% usage, tracked live via the "PVC Usage %" panel on the Kubernetes/Cluster dashboard. Comfortably within budget for the 10-day retention window.
+
+**Recovery from Pod deletion (no data loss).** Prometheus and Alertmanager both run as StatefulSets with `volumeClaimTemplate`-backed PVCs. Deleting the Pod alone (`kubectl delete pod ...`) does not lose data: the StatefulSet controller recreates the Pod, it reattaches to the same PVC, and Prometheus resumes with its existing TSDB intact.
+
+**Recovery from PVC deletion (data loss, but structurally recoverable).** Deleting the PVC itself destroys the TSDB — all scraped history — since there's no external backup; this is a deliberate simplicity tradeoff for a coursework/demo cluster, not a production posture. Recovery doesn't require any manual intervention beyond re-triggering the Pod: the StatefulSet's `volumeClaimTemplate` provisions a fresh PVC automatically once the old one is gone, and scraping resumes immediately with an empty TSDB. This exact scenario — and a strictly harder version of it — is proven directly rather than just asserted: `evidence/05-reinstall-from-scratch/00-findings.md` documents a full teardown that deleted the entire `observability` namespace (destroying both PVCs, not just one), followed by a scripted reinstall that rebuilt everything, including fresh PVCs, from Git alone in under a minute — with real scraping, alert routing, and dashboards all confirmed working again afterward.
 
 ## Reproducibility (Observability as Code)
 

@@ -291,6 +291,74 @@
       ],
       "fieldConfig": { "defaults": {}, "overrides": [] },
       "options": { "showHeader": true }
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Pods OOMKilled (last termination reason)",
+      "gridPos": { "x": 0, "y": 40, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "kube_pod_container_status_last_terminated_reason{reason=\"OOMKilled\", namespace=~\"devops-app|jenkins|observability\"} == 1",
+          "instant": true,
+          "format": "table",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "endpoint": true,
+              "instance": true,
+              "job": true,
+              "service": true,
+              "reason": true,
+              "uid": true,
+              "__name__": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "namespace": "Namespace",
+              "pod": "Pod",
+              "container": "Container"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Container CPU Throttling % by Pod",
+      "gridPos": { "x": 12, "y": 40, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(container_cpu_cfs_throttled_periods_total{namespace=~\"devops-app|jenkins|observability\", container!=\"\", container!=\"POD\"}[5m])) by (namespace, pod) / sum(rate(container_cpu_cfs_periods_total{namespace=~\"devops-app|jenkins|observability\", container!=\"\", container!=\"POD\"}[5m])) by (namespace, pod) * 100",
+          "legendFormat": "{{namespace}}/{{pod}}",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
     }
   ]
 }

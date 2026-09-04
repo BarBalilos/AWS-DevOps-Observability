@@ -336,6 +336,64 @@
       ],
       "fieldConfig": { "defaults": {}, "overrides": [] },
       "options": { "showHeader": true }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Jenkins Controller: JVM Heap Usage %",
+      "gridPos": { "x": 0, "y": 40, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "jvm_memory_bytes_used{area=\"heap\"} / jvm_memory_bytes_max{area=\"heap\"} * 100",
+          "legendFormat": "heap used %",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Jenkins Controller: JVM Threads",
+      "gridPos": { "x": 12, "y": 40, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "jvm_threads_current",
+          "legendFormat": "current",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        },
+        {
+          "refId": "B",
+          "expr": "jvm_threads_daemon",
+          "legendFormat": "daemon",
+          "datasource": { "type": "prometheus", "uid": "$datasource" }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      }
     }
   ]
 }

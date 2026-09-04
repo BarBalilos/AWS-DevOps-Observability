@@ -1,6 +1,6 @@
 # AWS DevOps — Observability as Code
 
-Monitoring and observability for the `devops-k8s` cluster (Prometheus, Alertmanager, Grafana) deployed via `kube-prometheus-stack`, entirely defined as code in this repository. See [`architecture/observability-architecture.md`](architecture/observability-architecture.md) for the full component diagram and data flow.
+Monitoring and observability for the `devops-k8s` cluster (Prometheus, Alertmanager, Grafana) deployed via `kube-prometheus-stack`, entirely defined as code in this repository. See [`architecture/observability-architecture.md`](architecture/observability-architecture.md) for the full component diagram, storage/retention/recovery details, and data flow.
 
 This repo is one of three that make up the project:
 
@@ -43,16 +43,20 @@ Jenkins credentials: `kubectl get secret -n jenkins <secret-name> -o jsonpath="{
 | Prometheus Operator + Prometheus instance | `helm/kube-prometheus-stack/values.yaml` | `evidence/01-stack-deployment/` |
 | Grafana with automatic datasource + dashboard provisioning from Git | `grafana/dashboards/*.json` loaded as labeled ConfigMaps by `scripts/install.sh` | `evidence/02-dashboards/`, `evidence/05-reinstall-from-scratch/05-grafana-dashboard-post-reinstall-*.png` |
 | Alertmanager with a safe, non-external demo receiver | `alertmanager/demo-receiver.yaml` | `evidence/04-failure-exercises/*/0*-demo-receiver-*.txt` (all 4 exercises) |
-| kube-state-metrics, node-exporter, kubelet/cAdvisor metrics | Bundled and enabled via `helm/kube-prometheus-stack/values.yaml` | `evidence/01-stack-deployment/` |
+| kube-state-metrics, node-exporter, kubelet/cAdvisor metrics | Bundled and enabled via `helm/kube-prometheus-stack/values.yaml`; kubelet scraping confirmed live | `evidence/01-stack-deployment/` |
 | ServiceMonitor/PodMonitor for every app service and Jenkins | `prometheus/monitors/backend-podmonitor.yaml`, `worker-podmonitor.yaml`, `frontend-podmonitor.yaml`, `jenkins-servicemonitor.yaml` | `evidence/01-stack-deployment/` |
-| Jenkins Prometheus plugin / metrics exposure | `AWS-DevOps-Jenkins-CICD/jenkins/monitoring/jenkins-metrics-service.yaml`, `jenkins/helm/values-jcasc.yaml` | `grafana/dashboards/jenkins-delivery.json` rendering live data |
+| Jenkins Prometheus plugin / metrics exposure | `AWS-DevOps-Jenkins-CICD/jenkins/monitoring/jenkins-metrics-service.yaml`, `jenkins/helm/values-jcasc.yaml` | `grafana/dashboards/jenkins-delivery.json` rendering live data, including controller JVM panels |
 | 3 required Grafana dashboards | `grafana/dashboards/application-overview.json`, `kubernetes-cluster.json`, `jenkins-delivery.json` | `evidence/02-dashboards/` |
 | Application instrumentation (counters/gauges/histograms, `app_info`, business metric) | `AWS-DevOps-Kubernetes/docker/backend/app.py`, `docker/worker/worker.py` | Application Overview dashboard panels |
 | SLI/SLO — Availability (99%) and Latency (95%) | `prometheus/rules/slo-recording-rules.yaml` | Application Overview dashboard, "Availability SLO" / "Latency SLO" panels |
-| 6 active alerting rules, each with a runbook | `prometheus/rules/app-alerts.yaml`, `jenkins-alerts.yaml`, `kubernetes-alerts.yaml`, `monitoring-alerts.yaml` → `runbooks/*.md` | `evidence/03-alerts-firing-resolved/`, all 4 failure exercises |
+| 6 active alerting rules, each with severity/summary/description/runbook | `prometheus/rules/app-alerts.yaml`, `jenkins-alerts.yaml`, `kubernetes-alerts.yaml`, `monitoring-alerts.yaml` → `runbooks/*.md` | `evidence/03-alerts-firing-resolved/`, all 4 failure exercises |
 | CI validates PrometheusRule/ServiceMonitor/dashboard files | `AWS-DevOps-Jenkins-CICD/pipelines/Jenkinsfile-observability-ci` | `AWS-DevOps-Jenkins-CICD/evidence/02-pipeline-ci/` |
 | CD runs post-deploy smoke test + monitoring gate | `AWS-DevOps-Jenkins-CICD/pipelines/Jenkinsfile-cd` (Smoke Test + Monitoring Gate stages) | `AWS-DevOps-Jenkins-CICD/evidence/03-pipeline-cd/`, `evidence/04-failure-exercises/d-broken-release-rollback/` |
 | 4 controlled failure exercises with full evidence | See table below | `evidence/04-failure-exercises/` |
+| RBAC minimal, no cluster-admin for monitoring components | Confirmed live: only `system:masters` and k3d's built-in Traefik ServiceAccounts hold `cluster-admin`; nothing observability-related | — |
+| NetworkPolicies restrict metrics scrape to the `observability` namespace only | `AWS-DevOps-Kubernetes/k8s/13-networkpolicy.yaml` | — |
+| No unbounded-cardinality labels (route pattern, not raw URL) | `AWS-DevOps-Kubernetes/docker/backend/app.py` (`request.url_rule.rule`) | — |
+| Documented retention, storage consumption, and PVC-deletion recovery | `architecture/observability-architecture.md` § Storage, Retention & Recovery | `evidence/05-reinstall-from-scratch/` |
 | Full reproducibility proof (Observability as Code) | `scripts/install.sh`, `uninstall.sh`, `verify.sh` | `evidence/05-reinstall-from-scratch/00-findings.md` |
 
 ## Alerting rules
@@ -76,6 +80,18 @@ Jenkins credentials: `kubectl get secret -n jenkins <secret-name> -o jsonpath="{
 | d — broken release rollback | PrometheusTargetDown | `evidence/04-failure-exercises/d-broken-release-rollback/00-findings.md` |
 
 Each exercise's findings document covers the objective, method, root cause, recovery, and a full evidence table (Prometheus alert state, Alertmanager routing, demo-receiver webhook delivery, and Grafana/Jenkins/Prometheus UI screenshots for both the firing and resolved states).
+
+## Troubleshooting
+
+**`verify.sh` reports a failure.** It prints exactly which check failed (a workload not ready, a missing PrometheusRule/monitor, or a missing/unlabeled dashboard ConfigMap). Re-run `bash scripts/install.sh` first — it's idempotent and will re-apply anything missing — then `bash scripts/verify.sh` again. If a specific workload is stuck, `kubectl get pods -n observability` and `kubectl describe pod <name> -n observability` show why.
+
+**A Grafana dashboard panel shows "No data."** First check the panel is querying a metric that actually has data right now (e.g., the Error Rate panels are *expected* to show "No data" when there's no error traffic — that's correct behavior, not a bug). If a panel that should have data doesn't: confirm the Prometheus datasource is reachable (top-left dropdown in Grafana), then check the underlying target is `up` in Prometheus (`http://localhost:9090/targets`). If the target is down, check the relevant `ServiceMonitor`/`PodMonitor` in `prometheus/monitors/` and the corresponding NetworkPolicy in the app's repo.
+
+**Can't log into Grafana.** Username is `admin`. Retrieve the password with the command in the Access section above — never guess or reuse a password from elsewhere, it's chart-generated per install.
+
+**An alert isn't firing when you expect it to.** Query the alert's exact `expr` directly in the Prometheus UI (`http://localhost:9090/graph`) to see if the underlying condition is actually true — the alert rule files in `prometheus/rules/` are the source of truth for the exact expression and `for:` duration. If the expression returns no data at all, check the metric name is correct (this project has hit real metric-naming mismatches before — see `docs/incidents-and-lessons-learned.md`).
+
+**Something's badly broken and you want a clean slate.** `bash scripts/uninstall.sh --with-namespace` followed by `bash scripts/install.sh` rebuilds the entire stack from Git in under a minute — this is the same procedure proven in `evidence/05-reinstall-from-scratch/`.
 
 ## Known issues and lessons learned
 
